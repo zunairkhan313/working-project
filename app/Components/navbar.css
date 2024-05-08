@@ -1,0 +1,8 @@
+
+@media (max-width: 575.98px){
+
+    #pagess{
+        flex: none;
+        flex-direction: column;
+    }
+}
