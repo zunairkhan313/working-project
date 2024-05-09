@@ -18,11 +18,47 @@ import { useState } from "react"
 
 export default function Product() {
     const { data: session } = useSession();
-    const [picture, setPicture] = useState(null);
+    const [img, setImg] = useState("")
+    // const [picture, setPicture] = useState(null);
 
-    function handleImage(e) {
-        console.log(e.target.files);
-        setPicture(URL.createObjectURL(e.target.files[0]));
+    // function handleImage(e) {
+    //     console.log(e.target.files);
+    //     setPicture(URL.createObjectURL(e.target.files[0]));
+    // }
+    const imagebase64 = async(file) => {
+        const reader = new FileReader()
+        await reader.readAsDataURL(file)
+        const data = new Promise((resolve, reject) => {
+            reader.onload = () => resolve(reader.result)
+            reader.onerror = (err) => reject(err)
+        })
+        return data
+
+    }
+
+    const handleUploadImage = async (e) => {
+        const file = e.target.files[0]
+        const image = await imagebase64(file)
+        setImg(image)
+
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        if (img) {
+            const res = await fetch("http://localhost:3000/api/topics", {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json",
+                },
+                body: JSON.stringify({ img : img }),
+            });
+            const data = await res.json()
+            console.log(data);
+            if(data.success){
+                alert(data.message)
+            }
+        }
     }
 
     var addButton;
@@ -31,14 +67,14 @@ export default function Product() {
 
         addButton = (
             <>
-                {/* <form onSubmit={handleSubmit}> */}
+                <form onSubmit={handleSubmit}>
 
-                <label htmlFor="file-upload" className="custom-file-upload">
-                    <span className="font-bold">Add Product</span> <ControlPointIcon />
-                </label>
-                <input id="file-upload" type="file" onChange={handleImage} />
-                {/* <button type="subbmit">submit</button>
-                </form> */}
+                    <label htmlFor="file-upload" className="custom-file-upload">
+                        <span className="font-bold">Add Product</span> <ControlPointIcon />
+                    </label>
+                    <input id="file-upload" type="file" onChange={handleUploadImage} />
+                    <button type="subbmit">submit</button>
+                </form>
 
 
             </>
@@ -299,16 +335,16 @@ export default function Product() {
                         </div>
                         <div style={{ height: "100%", width: 300 }} className='mt-5 shadow p-3 mb-5 bg-body-tertiary rounded'>
                             <div className='flex flex-wrap justify-around'>
-                                {picture && (
-                                    <Image
-                                        style={{ height: "250px" }}
-                                        className='rounded object-cover'
-                                        width={300}
-                                        height={300}
-                                        src={picture}
-                                        alt="tshirts"
-                                    />
-                                )}
+                                {/* {picture && ( */}
+                                <Image
+                                    style={{ height: "250px" }}
+                                    className='rounded object-cover'
+                                    width={300}
+                                    height={300}
+                                    src={img}
+                                    alt="tshirts"
+                                />
+                                {/* )} */}
                             </div>
                             <div className='mt-4'>
                                 <h4 className='text-2xl text-center font-bold tracking-wider'>Measuring Tools</h4>
